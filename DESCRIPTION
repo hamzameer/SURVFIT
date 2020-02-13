@@ -1,0 +1,28 @@
+Package: SURVFIT
+Type: Package
+Title: Rule Ensemble Learning and Analysis for Survival Data
+Version: 0.1.0
+Author@R: c(person("Ameer","Hamza"), email = <ameerh.shakur@gmail.com>, role = c("aut","cre"))
+Author: Ameer Hamza [aut, cre]
+Maintainer: Ameer Hamza <ameerh.shakur@gmail.com>
+Description: This package derives doubly sparse predictive 
+    ensemble of rules from survival data using a second order cone
+    formulation solved using Cplex. Double sparsity induces sparsity
+    in both number of rules extracted as well as variables involved
+    in the rules. This package also includes methods for comprehensive
+    analysis of extracted rules such asstatistical testing,
+    decomposition analysis and sensitivity analysis. 
+URL: https://github.com/hamzameer/SURVFIT
+Depends: 
+    R (>= 3.5.3)
+License: GPL-2 | GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    osqp,
+    dplyr,
+    ranger,
+    survival,
+    ggplot2,
+    Formula,
+    Rcplex
