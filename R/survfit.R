@@ -129,6 +129,5 @@ survfit <- function(formula = formula,
     coefs <- Rcplex::solve.socp.cplex(rdata,nvar,gamma,lambda1,lambda2,groups=groups)
     beta <- coefs$beta
     return(list(data = data, rule_list = rule_list, rdata = rdata,beta = beta))
-
   }
 }
