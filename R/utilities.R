@@ -69,6 +69,7 @@ parseMissingData <- function(data) {
 
 generate_ruledata <- function(data, rules){
   if(length(rules) == 0) stop("rules must be of length >= 1")
+    return(NULL)
   X <- data[,3:ncol(data)]
   expr <- parse(text = paste0("cbind(", paste0(rules, collapse = ", "), ")"))
   x <- eval(expr, data)

@@ -6,9 +6,6 @@ cv.gamma <- function(rdata, nfolds=5, gamma.values = NULL, lambda1 = 0, trace = 
   rdata.cens <- rdata[rdata$status == 0,]
   r = nrow(rdata.complete)
   lgv = length(gamma.values)
-
-
-
   for(i in 1:l){
     gamma = gamma.values[i]
     cat(paste0(i,'/',lgv,': CV for gamma=',gamma,'\n'))
@@ -81,7 +78,7 @@ cv.lambda2 <- function(rdata, nvar, gamma, lambda1 = lambda1.star, groups, lambd
   llv = length(lambda2.values)
   for(i in 1:llv){
     lambda2 = lambda2.values[i]
-    cat(paste0(i,'/',llv,': CV for lambda=',lambda2,'\n'))
+    cat(paste0(i,'/',llv,': CV for lambda2=',lambda2,'\n'))
     for(k in 1:nfolds){
       #test
       test <- ((k-1)*r%/%nfolds+1):(k*r%/%nfolds)
