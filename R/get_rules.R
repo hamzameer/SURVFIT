@@ -14,15 +14,8 @@ get_rules <- function(formula,
 
   #### GENERATE THE RULE LIST ####
 
-  ## if rules to be evaluated need to be generated from the data
-  newdata <- data[,c(yvar.names,xvar.names)]
-  remove(data)
-
-  ## this step simply omits the observation with missing values in the dataset (NOTE)
-  newdata <- parseMissingData(newdata)
-
   ## build a ranger survival random forest
-  rf.ranger = ranger::ranger(formula, newdata, num.trees = ntree,
+  rf.ranger = ranger::ranger(formula, data, num.trees = ntree,
                              max.depth = nodedepth, respect.unordered.factors = 'partition')
   ## get list of all trees from the ranger forest
   tree.list <- Ranger2List(rf.ranger)
@@ -31,7 +24,7 @@ get_rules <- function(formula,
   rule_list <- c()
   ## get rules of depth 1:nodedepth from the tree
   for(i in 1:nodedepth){
-    rules <- unique(extractRules(tree.list,newdata, ntree = ntree, maxdepth = i, digits=digits))
+    rules <- unique(extractRules(tree.list,data, ntree = ntree, maxdepth = i, digits=digits))
     ## if node depth is 1 | retain only every other rule
     if (i == 1){
       # nrules = length(rules)

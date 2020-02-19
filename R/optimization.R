@@ -3,10 +3,9 @@
 solve.socp.cplex <- function(rdata, nvar, gamma, lambda1, lambda2, groups = NULL, trace=1){
 
   ## complete observations
-  rdata.complete <- rdata %>% filter(status == 1)
-
+  rdata.complete <- rdata[rdata$status == 1,]
+  rdata.cens <- rdata[rdata$status == 0,]
   ## censored observations
-  rdata.cens <- rdata %>% filter(status == 0)
 
   # number of beta variables
   nb = 2*(ncol(rdata.complete)-2)
@@ -79,10 +78,9 @@ solve.socp.cplex <- function(rdata, nvar, gamma, lambda1, lambda2, groups = NULL
 solve.qp.cplex <- function(rdata, nvar, gamma, lambda1, trace = 1){
 
   ## complete observations
-  rdata.complete <- rdata %>% filter(status == 1)
-
+  rdata.complete <- rdata[rdata$status == 1,]
+  rdata.cens <- rdata[rdata$status == 0,]
   ## censored observations
-  rdata.cens <- rdata %>% filter(status == 0)
 
   # number of beta variables
   nb = 2*(ncol(rdata.complete)-2)

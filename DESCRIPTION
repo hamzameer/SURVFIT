@@ -26,3 +26,4 @@ Imports:
     ggplot2,
     Formula,
     Rcplex
+RoxygenNote: 7.0.2

@@ -38,8 +38,8 @@
 # # use_package("Rcplex") #Rcplex ,osqp, "dplyr","ranger","survival","ggplot2","Formula")
 # library(survival)
 # data(ovarian)
-# use_data(ovarian)
-
-head(ovarian)
-formula = Surv(futime, fustat)~.
-# rules <- survfit(formula = formula, ovarian)
+# # use_data(ovarian)
+#
+# head(ovarian)
+# formula = Surv(futime, fustat)~.
+# # rules <- survfit(formula = formula, ovarian)

@@ -1,18 +1,61 @@
-survfit <- function(formula = formula,
+#' Doubly Sparse Survival Rule Extraction
+#'
+#' \code{SURVFIT} extracts a doubly sparse (sparse in both number of rules and
+#' in number of variables in the rules) survival rule ensemble from survival
+#' data
+#'
+#' @param formula \code{formula}. The model formula specifying time, status and
+#'   dependent variables of the form \code{Surv(time, status)~ x1 + x2 + .. }
+#' @param data \code{data.frame}. Training data.
+#' @param rulelength \code{Integer}. Maximum length of the rule. (Default = 3)
+#' @param doubly.sparse \code{Logical} for whether double sparsity required.
+#'   (Default = FALSE)
+#' @param gamma \code{Numeric} or \code{list}. Hyperparameter (Default = NULL)
+#' @param lambda1 \code{Numeric} or \code{list}. Hyperparameter (Default = NULL)
+#' @param lambda2  \code{Numeric} or \code{list}. Hyperparameter (Default =
+#'   NULL)
+#' @param crossvalidate \code{Logical}. Whether crossvalidation to be done to
+#'   find hyperparameters. (Default = TRUE)
+#' @param nfolds \code{Integer}. Number of cross validation folds. (Default = 5)
+#' @param num_toprules \code{Integer}. Number of rules extracted. (Default = 16)
+#' @param num_totalrules \code{Integer}. Number of rules considered. (Default =
+#'   2000)
+#' @param input_rule_list \code{Logical} Whether rule list supplied. (Default =
+#'   FALSE)
+#' @param rule_list \code{List}. List of supplied rules. (Default = NULL)
+#' @param ntree \code{Integer} .Number of trees built
+#' @param digit \code{Integer}. Decimal points.
+#' @param seed \code{Numeric}. Seed for reproducible experiments.
+#' @param nodesize \code{Integer}. (Default = NULL)
+#' @param ... Other inputs
+
+#' @return Object of class \code{list} with elements
+#'   \item{\code{rules}}{List of top \code{\link{num_toprules}} rules}
+#'   \item{\code{all_rules}}{List of all \code{\link{num_totalrules}} rules}
+#'   \item{\code{rule_data}}{\code{Data.frame} of rules evaluated over data}
+#'   \item{\code{beta}}{Coefficients of \link{all_rules} in the model}
+#' @examples
+#' ## For ovarian data from survival package.
+#' SURVFIT(Surv(futime, fustat) ~ ., data = ovarian)
+#'
+#'@export
+SURVFIT <- function(formula = formula,
                     data = data,
-                    ntree = 200,
-                    nodesize = null, nodedepth = 3,
-                    input_rule_list = FALSE,
-                    rule_list = NULL,
-                    digit = 10,
-                    seed = NULL,
-                    family = "surv",
+                    rulelength = 3,
                     doubly.sparse = FALSE,
-                    gamma = NULL, lambda1 = NULL, lambda2 = NULL,
+                    gamma = NULL,
+                    lambda1 = NULL,
+                    lambda2 = NULL,
                     crossvalidate = TRUE,
                     nfolds = 5,
                     num_toprules = 16,
                     num_totalrules = 2000,
+                    input_rule_list = FALSE,
+                    rule_list = NULL,
+                    ntree = 200,
+                    digit = 10,
+                    seed = NULL,
+                    nodesize = NULL,
                     ...){
 
   #### PRELIMNARY TESTING AND FORMATTING ####
@@ -66,6 +109,17 @@ survfit <- function(formula = formula,
     stop("family should be 'surv'")
   }
 
+
+  ## if rules to be evaluated need to be generated from the data
+  newdata <- data[,c(yvar.names,xvar.names)]
+  remove(data)
+
+  ## this step simply omits the observation with missing values in the dataset (NOTE)
+  newdata <- parseMissingData(newdata)
+
+
+
+
   #### RULE GENERATION ####
 
   if (input_rule_list == TRUE | !is.null(rule_list)){
@@ -75,11 +129,11 @@ survfit <- function(formula = formula,
   }else{
 
     rule_list <- get_rules(formula = formula,
-                            data = data,
+                            data = newdata,
                             xvar.names = xvar.names,
                             yvar.names = yvar.names,
                             ntree = ntree,
-                            nodesize = NULL, nodedepth = nodedepth,
+                            nodesize = NULL, nodedepth = rulelength,
                             digit = digit,
                             seed = NULL,
                             family = "surv",
@@ -90,10 +144,14 @@ survfit <- function(formula = formula,
 
   #### RULE DATA GENERATION ####
 
-  rdata <- generate_ruledata(data,rule_list)
+  rdata <- generate_ruledata(newdata,rule_list)
   intercept <- rep(1,nrow(rdata))
   rdata <- cbind(data[,yvar.names],intercept,rdata)
   colnames(rdata) <- c("time","status","intercept",sapply(1:length(rule_list),function(x) paste('rule',x,sep="")))
+
+  # rules to rule_names (using colnames of newdata)
+
+
 
 
   #### OPTIMIZATION SOLUTION AND ALGORITHM ####
@@ -109,7 +167,12 @@ survfit <- function(formula = formula,
 
     coefs <- solve.qp.cplex(rdata,nvar,gamma,lambda)
     beta <- coefs$beta
-    return(list(data = data, rule_list = rule_list, rdata = rdata,beta = beta))
+
+    top_ix <- sort(abs(coefs), decreasing = TRUE, index.return = TRUE)$ix -1
+    top_rule_ix <- top_ix[1:num_toprules]
+    top_rules <- rule_list[top_rule_ix]
+
+    return(list(rules = top_rules, all_rules = rule_list, rdata = rdata,beta = beta))
 
     }else {
 
