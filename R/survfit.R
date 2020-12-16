@@ -1,6 +1,6 @@
 #' Doubly Sparse Survival Rule Extraction
 #'
-#' \code{SURVFIT} extracts a doubly sparse (sparse in both number of rules and
+#' \code{SURVFIT} extracts a "doubly sparse" (sparse in both number of rules and
 #' in number of variables in the rules) survival rule ensemble from survival
 #' data
 #'
@@ -27,6 +27,7 @@
 #' @param digit \code{Integer}. Decimal points.
 #' @param seed \code{Numeric}. Seed for reproducible experiments.
 #' @param nodesize \code{Integer}. (Default = NULL)
+#' @param trace \code{0 or 1}. : Turn CPLEX output on (1) or off(0). Default 1.
 #' @param ... Other inputs
 
 #' @return Object of class \code{list} with elements
@@ -35,7 +36,7 @@
 #'   \item{\code{rule_data}}{\code{Data.frame} of rules evaluated over data}
 #'   \item{\code{beta}}{Coefficients of \link{all_rules} in the model}
 #' @examples
-#' ## For ovarian data from survival package.
+#' ## For ovarian data from "survival" package.
 #' SURVFIT(Surv(futime, fustat) ~ ., data = ovarian)
 #'
 #'@export
@@ -47,7 +48,7 @@ SURVFIT <- function(formula = formula,
                     lambda1 = NULL,
                     lambda2 = NULL,
                     crossvalidate = TRUE,
-                    nfolds = 5,
+                    nfolds = 4,
                     num_toprules = 16,
                     num_totalrules = 2000,
                     input_rule_list = FALSE,
@@ -56,8 +57,9 @@ SURVFIT <- function(formula = formula,
                     digit = 10,
                     seed = NULL,
                     nodesize = NULL,
+                    trace = 1,
+                    max.grid = 25,
                     ...){
-
   #### PRELIMNARY TESTING AND FORMATTING ####
 
   if(!is.null(seed)){
@@ -81,7 +83,7 @@ SURVFIT <- function(formula = formula,
   ## coherence checks on option parameters
   ntree <- round(ntree)
   if (ntree < 1) stop("Invalid choice of 'ntree'.  Cannot be less than 1.")
-  nodedepth = round(nodedepth)
+  nodedepth = round(rulelength)
   if (nodedepth < 1) stop("Invalid choice of 'nodedepth'.  Cannot be less than 1.")
 
   if (!is.logical(doubly.sparse)) stop("Invalid choice of 'var.sparse'. Must be logical. ")
@@ -118,8 +120,6 @@ SURVFIT <- function(formula = formula,
   newdata <- parseMissingData(newdata)
 
 
-
-
   #### RULE GENERATION ####
 
   if (input_rule_list == TRUE | !is.null(rule_list)){
@@ -146,51 +146,74 @@ SURVFIT <- function(formula = formula,
 
   rdata <- generate_ruledata(newdata,rule_list)
   intercept <- rep(1,nrow(rdata))
-  rdata <- cbind(data[,yvar.names],intercept,rdata)
-  colnames(rdata) <- c("time","status","intercept",sapply(1:length(rule_list),function(x) paste('rule',x,sep="")))
+  rdata <- cbind(newdata[,yvar.names],intercept,rdata)
+  colnames(rdata) <- c("time","status","intercept",
+                       sapply(1:length(rule_list),
+                              function(x) paste('rule',x,sep="")))
 
   # rules to rule_names (using colnames of newdata)
 
 
 
-
   #### OPTIMIZATION SOLUTION AND ALGORITHM ####
 
-  if(is.null(gamma) & is.null(lambda)){
+  # When no parameters are provided, use cross-validations
+  if(is.null(gamma) & is.null(lambda1)){
 
-    cv <- cv.lambda_gamma(rdata,nvar)
+    cv <- cv.lambda_gamma(rdata,nvar, max.grid = max.grid)
     gamma <- cv$gamma.star
-    lambda <- cv$lambda.star
+    lambda1 <- cv$lambda.star
   }
 
-  if(!doubly.sparse){
+  # if double sparse result is not required
+  if(!doubly.sparse)
 
-    coefs <- solve.qp.cplex(rdata,nvar,gamma,lambda)
+    {
+
+
+    # solve QP
+    coefs <- solve.qp.cplex(rdata,nvar,gamma,lambda1, trace = trace)
     beta <- coefs$beta
 
-    top_ix <- sort(abs(coefs), decreasing = TRUE, index.return = TRUE)$ix -1
+    # return TopRules and Beta
+    top_ix <- sort(abs(beta), decreasing = TRUE, index.return = TRUE)$ix -1
     top_rule_ix <- top_ix[1:num_toprules]
     top_rules <- rule_list[top_rule_ix]
 
-    return(list(rules = top_rules, all_rules = rule_list, rdata = rdata,beta = beta))
+    hyperparams = list(gamma = gamma, lambda1 = lambda1)
+    return(list(rules = top_rules, all_rules = rule_list,
+                rdata = rdata,beta = beta, hyperparams = hyperparams))
 
-    }else {
+    }else
 
+      # Doubly Sparse Rule Extraction is required
+
+    {
+
+    # extract groups
     groups <- extractgroups(rule_list, nvar, family)
     # adjust groups:
     for(i in 1:nvar){
       groups[[i]] <- (sqrt(sum(groups[[i]] == 1)))*groups[[i]]
     }
 
-    if(is.null(lambda1) & is.null(lambda2)){
+    # cross-validation when not provided
+    if(is.null(lambda2)){
 
-      cv <- cv.lambda12(rdata, nvar, nfolds, gamma,groups)
+      cv <- cv.lambda12(rdata, nvar, gamma,groups, max.grid = max.grid)
       lambda1 = cv$lambda1
       lambda2 = cv$lambda2
     }
 
-    coefs <- Rcplex::solve.socp.cplex(rdata,nvar,gamma,lambda1,lambda2,groups=groups)
+    # QCQCP solution
+    coefs <- solve.socp.cplex(rdata,nvar,gamma,lambda1,
+                                      lambda2,groups=groups, trace = trace)
+
+    # return beta
     beta <- coefs$beta
-    return(list(data = data, rule_list = rule_list, rdata = rdata,beta = beta))
+
+    hyperparams = list(gamma = gamma, lambda1 = lambda1, lambda2 = lambda2)
+    return(list(data = data, rule_list = rule_list, rdata = rdata,
+                beta = beta, hyperparams = hyperparams))
   }
 }

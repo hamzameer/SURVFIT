@@ -1,0 +1,44 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# SURVFIT
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+**SURVFIT** is an **R** package for doubly sparse rule extraction from
+survival data. Doubly sparse refers to rule extraction with sparsity
+induced both in the number of rules as well as the variables involved in
+the extracted rules. Input variables may be numeric, ordinal and
+categorical. The package uses Cplex optimization solver, via the R
+package **RCplex**, and generates initial set of rules using package
+**ranger**. A guide to installation of Cplex, **Rcplex** is provided in
+‘Cplex Installation Guide.txt’ and an implementation of the methods on
+a sample data-set is provided in ‘example.Rmd’
+
+## Installation
+
+You can install the development version of **SURVFIT** from
+[GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("hamzameer/SURVFIT")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem. A
+more detailed example template can be found in ‘example.Rmd’
+
+``` r
+library(SURVFIT)
+formula = Surv(time, status) ~ .
+model <- SURVFIT(formula, data)
+```
+
+## Vignette
+
+The vignette explaining model parameters and functions is in the
+*Vignettes* folder.

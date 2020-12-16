@@ -1,0 +1,47 @@
+---
+title: "SURVFIT example"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Applying SURVFIT to the *ovarian* data-set from the **survival** package. A minimal working example.
+
+
+```{r}
+# load all the dependencies
+library(survival)
+library(ranger)
+library(Rcplex)
+library(SURVFIT)
+```
+
+
+```{r}
+# load the ovarian data-set
+data(ovarian)
+# run the model
+model <- SURVFIT(Surv(futime, fustat)~., data = ovarian)
+```
+
+#### To get the rules extracted from SURVFIT: 
+```{r}
+# rules extracted from SURVFIT are:
+survfit_rules <- model$rules
+print(survfit_rules)
+```
+
+
+#### To get all rules extracted and their coefficients in the model: 
+```{r}
+# rules extracted from SURVFIT are:
+all_rules <- model$all_rules
+beta <- model$beta
+
+# printing rules and coefficients of first 10 rules
+print(all_rules[1:10])
+print(beta[1:10])
+
+```

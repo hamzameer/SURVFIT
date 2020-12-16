@@ -27,3 +27,7 @@ Imports:
     Formula,
     Rcplex
 RoxygenNote: 7.0.2
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

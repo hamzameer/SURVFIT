@@ -1,6 +1,6 @@
 ### SOCP OPTIMIZATION ###
 
-solve.socp.cplex <- function(rdata, nvar, gamma, lambda1, lambda2, groups = NULL, trace=1){
+solve.socp.cplex <- function(rdata, nvar, gamma, lambda1, lambda2, groups = NULL, trace=trace){
 
   ## complete observations
   rdata.complete <- rdata[rdata$status == 1,]
@@ -75,7 +75,7 @@ solve.socp.cplex <- function(rdata, nvar, gamma, lambda1, lambda2, groups = NULL
 
 
 ### QUADRATIC PROGRAMMING OPTIMIZATION ###
-solve.qp.cplex <- function(rdata, nvar, gamma, lambda1, trace = 1){
+solve.qp.cplex <- function(rdata, nvar, gamma, lambda1, trace = trace){
 
   ## complete observations
   rdata.complete <- rdata[rdata$status == 1,]

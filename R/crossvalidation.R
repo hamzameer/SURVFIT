@@ -67,7 +67,8 @@ cv.lambda <- function(rdata, gamma.star, lambda.values = NULL, nfolds=5, trace =
   res
 }
 
-cv.lambda2 <- function(rdata, nvar, gamma, lambda1 = lambda1.star, groups, lambda2.values = NULL, nfolds=5, trace = 0){
+cv.lambda2 <- function(rdata, nvar, gamma, lambda1 = lambda1.star, groups,
+                       lambda2.values = NULL, nfolds=5, trace = 0){
   if(is.null(lambda2.values)){
     lambda2.values <- c(0,1e-08,1e-06,1e-04,1e-03,1e-02, 1e-01,1,2,5,10,20)}
 
@@ -107,7 +108,8 @@ cv.lambda2 <- function(rdata, nvar, gamma, lambda1 = lambda1.star, groups, lambd
 }
 
 
-cv.lambda_gamma <- function(rdata, nfolds = 4,gamma.values = NULL, lambda.values = NULL,trace = 0, max.grid = 75){
+cv.lambda_gamma <- function(rdata, nfolds = 4,gamma.values = NULL,
+                            lambda.values = NULL,trace = 0, max.grid = max.grid){
 
   if(is.null(gamma.values)){
     gamma.values <- c(0,1e-8,1e-06,5e-06, 1e-05, 5e-05,
@@ -157,7 +159,9 @@ cv.lambda_gamma <- function(rdata, nfolds = 4,gamma.values = NULL, lambda.values
   res
 }
 
-cv.lambda12 <- function(rdata, nvar, lambda1.values = NULL, lambda2.values = NULL,nfolds = 4,gamma = 0,groups, trace = 0, max.grid = 75){
+cv.lambda12 <- function(rdata, nvar, gamma, groups, lambda1.values = NULL,
+                        lambda2.values = NULL,nfolds = 4, trace = 0, max.grid = max.grid){
+
 
   if(is.null(lambda1.values)){
     lambda1.values <- c(0,1e-06,1e-04,1e-03

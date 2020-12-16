@@ -1,0 +1,12 @@
+Cplex Optimization Studio is free for students and academics.  
+
+1. Visit: https://www.ibm.com/academic/technology/data-science
+2. Click on Software tab
+3. Look for "ILOG CPLEX Optimization Studio"
+4. Click on "Register or login to access this software"
+5. Use instutitional email to recieve free academic license. 
+6. Follow instructions to install Cplex on your system
+
+
+
+You need "Rcplex" package to call Cplex optimizer within R. Installation guide can be found here: https://cran.r-project.org/web/packages/Rcplex/index.html. 
