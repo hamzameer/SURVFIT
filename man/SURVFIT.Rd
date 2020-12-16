@@ -13,7 +13,7 @@ SURVFIT(
   lambda1 = NULL,
   lambda2 = NULL,
   crossvalidate = TRUE,
-  nfolds = 5,
+  nfolds = 4,
   num_toprules = 16,
   num_totalrules = 2000,
   input_rule_list = FALSE,
@@ -22,6 +22,8 @@ SURVFIT(
   digit = 10,
   seed = NULL,
   nodesize = NULL,
+  trace = 1,
+  max.grid = 25,
   ...
 )
 }
@@ -66,21 +68,24 @@ FALSE)}
 
 \item{nodesize}{\code{Integer}. (Default = NULL)}
 
+\item{trace}{\code{0 or 1}. : Turn CPLEX output on (1) or off(0). Default 1.}
+
 \item{...}{Other inputs}
 }
 \value{
 Object of class \code{list} with elements
-  \item{\code{top_rules}}{List of top \code{\link{num_toprules}} rules}
+  \item{\code{rules}}{List of top \code{\link{num_toprules}} rules}
   \item{\code{all_rules}}{List of all \code{\link{num_totalrules}} rules}
+  \item{\code{rule_data}}{\code{Data.frame} of rules evaluated over data}
   \item{\code{beta}}{Coefficients of \link{all_rules} in the model}
 }
 \description{
-\code{SURVFIT} extracts a doubly sparse (sparse in both number of rules and
+\code{SURVFIT} extracts a "doubly sparse" (sparse in both number of rules and
 in number of variables in the rules) survival rule ensemble from survival
 data
 }
 \examples{
-## For ovarian data from survival package.
+## For ovarian data from "survival" package.
 SURVFIT(Surv(futime, fustat) ~ ., data = ovarian)
 
 }
