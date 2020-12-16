@@ -15,7 +15,7 @@ categorical. The package uses Cplex optimization solver, via the R
 package **RCplex**, and generates initial set of rules using package
 **ranger**. A guide to installation of Cplex, **Rcplex** is provided in
 ‘Cplex Installation Guide.txt’ and an implementation of the methods on
-a sample data-set is provided in ‘example.Rmd’
+a sample data-set is provided in ‘example.md’
 
 ## Installation
 
